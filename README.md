@@ -1,4 +1,6 @@
-# SPbU Resource Downloader
+[![ShellCheck](https://github.com/KatherineMarakhova/homeworks_hwproj/actions/workflows/shellcheck.yml/badge.svg)](https://github.com/KatherineMarakhova/homeworks_hwproj/actions/workflows/shellcheck.yml)
+
+# SPbU Source Downloader
 
 This script automates downloading educational resources from the St. Petersburg University server
 
