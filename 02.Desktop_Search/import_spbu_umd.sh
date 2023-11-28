@@ -2,9 +2,9 @@
 
 show_help(){
     echo "Usage: $0 -s|--source [url] -d|--destination [path] [-p|--probe]"
-    echo "  -s | --source       URL to download from."
-    echo "  -d | --destination  Directory path to save the downloaded files."
-    echo "  -p | --probe        Optional: Download 10 random files if specified."
+    echo "  -s URL to download from."
+    echo "  -d Directory path to save the downloaded files."
+    echo "  -p Optional: Download 10 random files if specified."
 }
 
 SOURCE=""
@@ -50,7 +50,7 @@ dl_spbu_oop() {
     local result
     result=$(dl_spbu_s_e | grep -o -E "'https://nc\.spbu\.ru/.+?'" | sed "s/'//g" | sort | uniq )
     if [ "$PROBE" = true ]; then
-        echo "$result"  | sort -R | head -n 3
+        echo "$result"  | sort -R | head -n 10
     else
         echo "$result"
     fi
