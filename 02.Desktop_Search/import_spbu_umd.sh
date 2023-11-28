@@ -1,69 +1,57 @@
 #!/bin/bash
-POSITIONAL_ARGS=()
 
-TEMP=$(getopt -o vdm: --long verbose,debug,memory:,debugfile:,minheap:,maxheap: -n 'javawrap' -- "$@")
-
-if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
+show_help(){
+    echo "Usage: $0 -s|--source [url] -d|--destination [path] [-p|--probe]"
+    echo "  -s | --source       URL to download from."
+    echo "  -d | --destination  Directory path to save the downloaded files."
+    echo "  -p | --probe        Optional: Download 10 random files if specified."
+}
 
 SOURCE=""
 DESTINATION=""
 PROBE=false
 
-while [[ $# -gt 0 ]]; do
-case $1 in
--s|--source)
-    SOURCE="$2"
-    shift # past argument
-    shift # past value
-    ;;
--d|--destination)
-    DESTINATION="$2"
-    shift # past argument
-    shift # past value
-    ;;
--p|--probe)
-    PROBE=true
-    shift # past argument
-    shift # past value
-    ;;
---default)
-    SOURCE="https://spbu.ru/sveden/education"
-    shift # past argument
-    ;;
---)
-    shift
-    break
-    ;;
-*)
+if [ -z "$1" ];then
+    show_help
     exit 1
-    ;;
-esac
+fi
+
+while getopts *:s:d:p flag
+do
+    case "${flag}" in
+        s | -source) 
+            SOURCE=${OPTARG}
+            ;;
+        d | -destination) 
+            DESTINATION=${OPTARG}
+            ;;
+        p | -probe)  
+            PROBE=true
+            ;;
+    esac
 done
 
-mkdir -p "$DESTINATION"
+if [ ! -z $DESTINATION ]; then
+    mkdir -p "$DESTINATION"
+fi
 
-set -- "${POSITIONAL_ARGS[@]}" # restore positional parameters
+echo "FILE EXTENSION  = $SOURCE"
+echo "SEARCH PATH     = $DESTINATION"
 
-echo "FILE EXTENSION  = ${SOURCE}"
-echo "SEARCH PATH     = ${DESTINATION}"
-echo "DEFAULT         = ${DEFAULT}"
-
-
-dl_spbu_s_e () {
-    curl "https://spbu.ru/sveden/education" -s --compressed -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/118.0' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H 'Accept-Language: ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3' -H 'Accept-Encoding: gzip, deflate, br' -H 'DNT: 1' -H 'Connection: keep-alive'
+dl_spbu_s_e() {
+  curl 'https://spbu.ru/sveden/education' -s --compressed -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/118.0' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H 'Accept-Language: ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3' -H 'Accept-Encoding: gzip, deflate, br' -H 'DNT: 1' -H 'Connection: keep-alive'
 }
 
 dl_spbu_oop() {
-    local result
-
-    result=$(dl_spbu_s_e | grep -o -E "'https://nc\.spbu\.ru/.+?'" | sed "s/'//g" | sort | uniq)
+    local result=$(dl_spbu_s_e | grep -o -E "'https://nc\.spbu\.ru/.+?'" | sed "s/'//g" | sort | uniq )
     if [ "$PROBE" = true ]; then
-        echo "$result" | sort -R | head -n 10
+        echo "$result"  | sort -R | head -n 3
     else
         echo "$result"
     fi
 }
-function download {
+
+download() {
     local url="$1"
     # Generate a unique name from the URL by replacing '/' and ':' characters
     local filename="${url//[^a-zA-Z0-9]/_}"
@@ -77,21 +65,12 @@ function download {
     echo "$filepath"
 }
 
-extract_and_cleanup() {
-    local file_path="$1"
-    local dest_dir="$2"
-
-    unzip -o "$file_path" -d "$dest_dir"
-    local status=$?
-    if [ $status -ne 0 ]; then
-        >&2 echo "Failed to extract $file_path"
-        return $status
-    fi
-
-    if ! rm -f "$file_path"; then
-        >&2 echo "Failed to remove the zip file $file_path"
-        return 1
-    fi
+unarchive() {
+    for file in "$1"/*; do
+        if [ -f "$file" ]; then
+            unar -f "$file" -o "$1"
+        fi
+    done
 }
 
 for u in $(dl_spbu_oop); do
@@ -103,7 +82,6 @@ for u in $(dl_spbu_oop); do
     if [ $download_status -ne 0 ]; then
         continue
     fi
-
-    extract_and_cleanup "$local_file" "$DESTINATION"
-    echo $?
 done
+
+unarchive "$DESTINATION"
