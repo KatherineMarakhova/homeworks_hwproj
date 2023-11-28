@@ -16,7 +16,7 @@ if [ -z "$1" ];then
     exit 1
 fi
 
-while getopts *:s:d:p flag
+while getopts s:d:p flag
 do
     case "${flag}" in
         s | -source) 
@@ -31,7 +31,7 @@ do
     esac
 done
 
-if [ ! -z $DESTINATION ]; then
+if [ -n $DESTINATION ]; then
     mkdir -p "$DESTINATION"
 fi
 
@@ -77,7 +77,7 @@ for u in $(dl_spbu_oop); do
     file_url="${u}"
 
     # Download the file and receive the unique filepath back
-    local_file=$(download "$file_url")
+    download "$file_url"
     download_status=$?
     if [ $download_status -ne 0 ]; then
         continue
