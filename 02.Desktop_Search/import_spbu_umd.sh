@@ -19,19 +19,23 @@ fi
 while getopts s:d:p flag
 do
     case "${flag}" in
-        s | -source) 
+        s) 
             SOURCE=${OPTARG}
             ;;
-        d | -destination) 
+        d) 
             DESTINATION=${OPTARG}
             ;;
-        p | -probe)  
+        p)  
             PROBE=true
+            ;;
+        *)
+            show_help
+            exit 1
             ;;
     esac
 done
 
-if [ -n $DESTINATION ]; then
+if [ -n "$DESTINATION" ]; then
     mkdir -p "$DESTINATION"
 fi
 
@@ -43,7 +47,8 @@ dl_spbu_s_e() {
 }
 
 dl_spbu_oop() {
-    local result=$(dl_spbu_s_e | grep -o -E "'https://nc\.spbu\.ru/.+?'" | sed "s/'//g" | sort | uniq )
+    local result
+    result=$(dl_spbu_s_e | grep -o -E "'https://nc\.spbu\.ru/.+?'" | sed "s/'//g" | sort | uniq )
     if [ "$PROBE" = true ]; then
         echo "$result"  | sort -R | head -n 3
     else
