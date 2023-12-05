@@ -1,7 +1,7 @@
 #!/bin/bash
 
 show_help(){
-    echo "Usage: $0 -s|--source [url] -d|--destination [path] [-p|--probe]"
+    echo "Usage: $0 -s [url] -d [path] [-p|]"
     echo "  -s URL to download from."
     echo "  -d Directory path to save the downloaded files."
     echo "  -p Optional: Download 10 random files if specified."
@@ -43,14 +43,14 @@ echo "FILE EXTENSION  = $SOURCE"
 echo "SEARCH PATH     = $DESTINATION"
 
 dl_spbu_s_e() {
-  curl 'https://spbu.ru/sveden/education' -s --compressed -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/118.0' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H 'Accept-Language: ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3' -H 'Accept-Encoding: gzip, deflate, br' -H 'DNT: 1' -H 'Connection: keep-alive'
+  curl 'https://spbu.ru/sveden/education' -s --compressed -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/1>
 }
 
 dl_spbu_oop() {
     local result
     result=$(dl_spbu_s_e | grep -o -E "'https://nc\.spbu\.ru/.+?'" | sed "s/'//g" | sort | uniq )
     if [ "$PROBE" = true ]; then
-        echo "$result"  | sort -R | head -n 10
+        echo "$result"  | sort -R | head -n 3
     else
         echo "$result"
     fi
@@ -73,10 +73,23 @@ download() {
 unarchive() {
     for file in "$1"/*; do
         if [ -f "$file" ]; then
-            unar -f "$file" -o "$1"
+            unar -q -f "$file" -o "$1" 
         fi
     done
 }
+
+update_recoll_index() {
+    echo "Updating Recoll index..."
+    recollindex -r "$DESTINATION"
+    local status=$?
+    if [ $status -ne 0 ]; then
+        >&2 echo "Failed to update Recoll index."
+        return $status
+    else
+        echo "Recoll index updated successfully."
+    fi
+}
+
 
 for u in $(dl_spbu_oop); do
     file_url="${u}"
@@ -90,3 +103,4 @@ for u in $(dl_spbu_oop); do
 done
 
 unarchive "$DESTINATION"
+update_recoll_index "$DESTINATION"
