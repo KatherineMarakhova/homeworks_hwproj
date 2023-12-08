@@ -1,7 +1,16 @@
 [![ShellCheck](https://github.com/KatherineMarakhova/homeworks_hwproj/actions/workflows/shellcheck.yml/badge.svg)](https://github.com/KatherineMarakhova/homeworks_hwproj/actions/workflows/shellcheck.yml)
+
 # SPbU Source Downloader
 
 This script automates downloading educational resources from the St. Petersburg University server
+
+## Before use
+```bash
+sudo apt-get update
+sudo apt-get install unar
+sudo apt-get install recoll
+recollindex
+```
 
 ## Usage
 
@@ -10,4 +19,9 @@ This script automates downloading educational resources from the St. Petersburg 
 -s URL to download from.
 -d Directory path to save the downloaded files.
 -p Optional: Download 10 random files if specified.
+```
+
+## Recoll usage
+```bash
+recoll -t "your text for search"
 ```
