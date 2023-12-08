@@ -1,5 +1,5 @@
-#include "./include/image.h"
-#include "./include/fractal.h"
+#include "include/image.h"
+#include "include/fractal.h"
 #include "include/custom_assert.h"
 
 #include <assert.h>
