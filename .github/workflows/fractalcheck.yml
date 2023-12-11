@@ -1,0 +1,25 @@
+name: "Fractals CI"
+
+on: [push]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run clang-format
+        uses: DoozyX/clang-format-lint-action@v0.14
+        with:
+          source: './03.Fractal'
+          extensions: 'h,c'
+          clangFormatVersion: 14
+          style: google
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Build program
+        run: cd 03.Fractal && make
