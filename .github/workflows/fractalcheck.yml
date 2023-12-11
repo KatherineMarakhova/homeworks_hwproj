@@ -7,14 +7,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Run clang-format
-        uses: DoozyX/clang-format-lint-action@v0.14
+        uses: actions/checkout@v1
+      - name: Run ShellCheck
+        uses: azohra/shell-linter@latest
         with:
-          source: './03.Fractal'
-          extensions: 'h,c'
-          clangFormatVersion: 14
-          style: google
+          path: "./03.Fractal"
 
   build:
     runs-on: ubuntu-latest
