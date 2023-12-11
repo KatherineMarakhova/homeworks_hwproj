@@ -46,7 +46,7 @@ void draw_mandelbrot_set(image_p picture)
       for( iter = 0; iter < max_iter && cabs(z) <= 2.0; iter++ ) {
         z = z * z + c;
       }
-
+      
       set_pixel(picture, x, y, iter % 256);
     }
   }
