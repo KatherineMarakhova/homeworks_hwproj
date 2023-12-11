@@ -19,7 +19,7 @@ $(TARGET): $(OBJECTS)
 	$(CC) $^ -o $@
 
 $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.c
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@ -lm
 	@echo "Compiled "$<" successfully!"
 
 .PHONY: clean
